@@ -4,6 +4,7 @@ import router from "../routes/userroutes.js"
 const app = express()
 
 app.use(express.json())
+app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"))
 
 app.use("/api",router)
