@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import config from "../config/config.js";
 import jwt from "jsonwebtoken";
 
-export async function register (req, res){
+export async function register(req, res) {
     const { username, password, email } = req.body;
     const isloggedin = await userModel.findOne({
         $or: [
@@ -11,23 +11,23 @@ export async function register (req, res){
             { email }
         ]
     })
-    if(isloggedin){
-      return   res.status(409).json({
-            message:"email & username is already exits"
+    if (isloggedin) {
+        return res.status(409).json({
+            message: "email & username is already exits"
         })
     }
     const salt = await bcrypt.genSalt(10);
-    const hashpassword =await  bcrypt.hash(password,salt)
+    const hashpassword = await bcrypt.hash(password, salt)
 
-    const user =await userModel.create({
+    const user = await userModel.create({
         username,
         email,
-        password:hashpassword
+        password: hashpassword
     })
-    const token =  jwt.sign({
-        id:user._id
-    },config.JWT_SECRET,{
-        expiresIn:"1d"
+    const token = jwt.sign({
+        id: user._id
+    }, config.JWT_SECRET, {
+        expiresIn: "1d"
     })
 
     res.status(201).json({
