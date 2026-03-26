@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import config from "../config/config.js";
 import jwt from "jsonwebtoken";
 
+
 export async function register(req, res) {
     const { username, password, email } = req.body;
     const isloggedin = await userModel.findOne({
@@ -29,6 +30,13 @@ export async function register(req, res) {
     }, config.JWT_SECRET, {
         expiresIn: "1d"
     })
+    res.cookie("token", token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000
+
+    })
 
     res.status(201).json({
         user,
@@ -38,6 +46,6 @@ export async function register(req, res) {
 }
 export async function login(req, res) {
     const { username, password, email } = req.body;
-   
+
 
 }
