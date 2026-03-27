@@ -25,27 +25,51 @@ export async function register(req, res) {
         email,
         password: hashpassword
     })
+    
     const token = jwt.sign({
         id: user._id
     }, config.JWT_SECRET, {
         expiresIn: "1d"
     })
-    res.cookie("token", token, {
-        httpOnly: true,
-        secure: true,
-        sameSite: "strict",
-        maxAge: 7 * 24 * 60 * 60 * 1000
-
-    })
+     res.cookie("token", token, {
+            httpOnly: true,
+            secure: true,
+            sameSite: "strict",
+            maxAge: 7 * 24 * 60 * 60 * 1000
+        });
+       
 
     res.status(201).json({
         user,
-        token
+       
+       token
     })
 
 }
-export async function login(req, res) {
-    const { username, password, email } = req.body;
 
+export async function getme(req, res) {
+    try {
+       const token = req.headers.authorization?.split(" ")[1];
 
+        if (!token) {
+            return res.status(401).json({ message: "token not found" });
+        }
+
+        const decoded = jwt.verify(token, config.JWT_SECRET);
+
+        const user = await userModel.findById(decoded.id).select("-password");
+
+        if (!user) {
+            return res.status(404).json({ message: "user not found" });
+        }
+
+        res.status(200).json({
+            user
+        });
+
+    } catch (error) {
+        res.status(401).json({
+            message: "invalid token"
+        });
+    }
 }
